@@ -2,9 +2,183 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Utilities</title>
+	<title>Document</title>
+
+<style>
+		body{
+			background-color: #fff;	
+		}
+		.content-k{
+			width: 500px;
+			min-height: 300px;
+			height: auto;
+			margin: 0 auto;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+
+		}
+		.fix-title, #gas{
+			display:inline-block;
+		}
+		#fix-price{
+			font-weight:bold;
+		}
+		#cold-water,
+		#warm-water{
+			width: 40px;
+		}
+		.fix-price-cold-water{
+			font-weight: bold;
+		}
+		.title-name{
+			font-weight:bold;
+		}
+		.list-result .x{
+			cursor: pointer;
+			color: red;
+			font-weight: bold;
+		}
+	</style>
+	<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
 </head>
 <body>
-	
+
+	<div class="content-k">
+	<h2 align="center">Квитанция за коммунальные</h2>111
+	<!-- Територия -->
+	<label for="gas">Територия дома</label>
+		<input type="checkbox" id="home" name="home"> Фиксированая стоимость: <span id="fix-price">82.21 </span>грн.
+	<br>
+	<!-- Gas -->
+	<label for="gas">Газ</label>
+		<input type="checkbox" id="gas" name="gas"> Фиксированая стоимость: <span id="fix-price">45.21 </span>грн.
+	<br>
+	<!-- cold water -->
+	<div class="title-name">Холодная вода </div>
+		<input type="text" id="cold_current" name="coldc" style="width:65px; text-align:center;">
+		<input type="text" id="cold_last" name="coldp" style="width:65px; text-align:center;">
+		<span>Кубы</span>
+		<span id="cold-cube">0</span> Итого: <span id="c-water">0 </span>грн.
+	<br>
+	<!-- hot water -->
+	<div class="title-name">Горячая вода</div>
+		<input type="text" id="hot_current" style="width:65px; text-align:center;" name="hotc">
+		<input type="text" id="hot_last" style="width:65px; text-align:center;" name="hotl">
+		<label for="hot-water">Кубы</label>
+		<span id="hot-cube">0</span> Итого: <span id="h-water">0 </span>грн.
+	<!-- Электрика -->
+	<div class="title-name">Электрика</div>
+		<input type="text" id="el_c" style="width:65px; text-align:center;" name="electricityc">
+		<input type="text" id="el_last" style="width:65px; text-align:center;" name="electricityl">
+		<label for="electric">Киловаты:</label>
+		<span id="electric"></span> Итого: <span id="e-electric">0 </span>грн.
+		Тариф: <span id="elect_tariff">0.456</span>
+	<br>
+	<!-- total -->
+	<span id="total">0.00</span> грн. <span id="today"></span>
+	<br>
+	<button id="total-submit" onclick="theTotal()">Посчитать</button>
+	<button onclick="clear()">Очистить</button>
+	<!-- result -->
+	<div class="list-result"></div>
+
+	</div>
+	<script>
+	// home
+	var home = document.getElementById('home');
+	var home_k = 0;
+	// gas
+	var gas = document.getElementById('gas');
+	var gas_k = 0;
+	// cold water
+	var coldCurrent = document.getElementById('cold_current');
+	var coldLast = document.getElementById('cold_last');
+	var coldCube = 0;
+	var cWater = 0;
+	// 
+	var hotCurrent = document.getElementById('hot_current');
+	var hotLast = document.getElementById('hot_last');
+	var hotCube = 0;
+	var hWater = 0;
+	var elCurrent = document.getElementById('el_c');
+	var elLast = document.getElementById('el_last');
+	var elKw = 0;
+	var elPriceOne = 0.456;
+	var elPriceTwo = 0.789;
+	var el = 0;
+	// execute current date of invoice!
+	var date = new Date();
+	var d = date.getDate();
+	var m = date.getMonth();
+	var y = date.getFullYear();
+	var dateGather = d + '.' + m + "." + y;
+	// counting cold water
+		coldLast.oninput = function(){
+			coldCube = coldCurrent.value - coldLast.value;
+			document.getElementById('cold-cube').innerHTML = coldCube;
+			cWater = coldCube * 10.24; 
+			document.getElementById('c-water').innerHTML = cWater.toFixed(2);
+		}
+	// counting hot water
+		hotLast.oninput = function(){
+			hotCube = hotCurrent.value - hotLast.value;
+			document.getElementById('hot-cube').innerHTML = hotCube;
+			hWater = hotCube * 4.82; 
+			document.getElementById('h-water').innerHTML = hWater.toFixed(2);
+		}    
+	// electricity
+		elLast.oninput = function(){
+			elKw = elCurrent.value - elLast.value;
+			document.getElementById('electric').innerHTML = elKw;
+
+			if(elKw <= 100){
+				el = elKw * +elPriceOne;
+				document.getElementById('elect_tariff').innerHTML = elPriceOne;
+			}else{
+				el = +elKw * +elPriceTwo;
+				document.getElementById('elect_tariff').innerHTML = elPriceTwo;
+			}
+			document.getElementById('e-electric').innerHTML = el.toFixed(2);
+		}
+			
+	//Total 
+	function theTotal(){
+		// Home
+		if(home.checked){
+			home_k = 82.21; 
+		}else{
+			home_k = 0;
+		}
+		// gas
+		if(gas.checked){
+			gas_k = 45.21; 
+		}else{
+			gas_k = 0;
+		}
+		var totalSum = home_k + cWater + hWater + gas_k + el;
+		document.getElementById('total').innerHTML = totalSum.toFixed(2);
+		document.getElementById('today').innerHTML = dateGather;
+	}
+	$(document).ready(function(){
+		$('input[name="coldc"]').prop('placeholder' , 'поточна');
+		$('input[name="coldp"]').prop('placeholder' , 'попередня');
+		$('input[name="hotc"]').prop('placeholder' , 'поточна');
+		$('input[name="hotl"]').prop('placeholder' , 'попередня');
+		$('input[name="electricityc"]').prop('placeholder' , 'поточна');
+		$('input[name="electricityl"]').prop('placeholder' , 'попередня');
+		// creating list items / delete btn x 
+		var classNum = 1;
+		   $('#total-submit').click(function(){
+		   		var toAdd = $('#total').text();
+		   		var toAddData = $('#today').text();
+		   		$('.list-result').append('<div class="item-' + classNum + '">' + toAdd + ' - Дата: ' + toAddData + ' <span class="x">x</span></div>');
+		   		  classNum++;
+		   $(document).on('click','.x',function(){
+		   		$(this).parent().remove();
+		   });
+	});
+		   });
+
+	</script>
 </body>
 </html>
